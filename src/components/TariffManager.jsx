@@ -9,7 +9,7 @@ const STATUS = {
   archived: { label: 'Archivada', bg: '#FFF3E0', color: '#E65100', icon: '📦' },
 };
 
-export default function TariffManager({ currentCalcs, currentParams, materialCosts, clientId }) {
+export default function TariffManager({ currentCalcs, currentParams, materialCosts, clientId, productImages = {} }) {
   const [tariffs, setTariffs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewingTariff, setViewingTariff] = useState(null);
@@ -176,7 +176,7 @@ export default function TariffManager({ currentCalcs, currentParams, materialCos
   };
 
   if (viewingTariff) {
-    return <TariffViewer tariff={viewingTariff} onClose={() => setViewingTariff(null)} />;
+    return <TariffViewer tariff={viewingTariff} productImages={productImages} onClose={() => setViewingTariff(null)} />;
   }
 
   return (

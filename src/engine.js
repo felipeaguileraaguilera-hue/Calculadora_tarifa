@@ -40,6 +40,15 @@ export const UNIT_PRODUCTS_VO = [
   { id: 'VO_BOT_250',     name: 'Botella 250 ML', vol: 0.25, units: 1,  envase: 1.30, tapon: 0.20, etiqueta: 0.02, contra: 0.02, embalaje: 0 },
 ];
 
+// Delirium — Premium line (uses VO oil price)
+export const UNIT_PRODUCTS_DL = [
+  { id: 'DL_BOT_500',     name: 'Delirium 500 ML', vol: 0.5, units: 1, envase: 0, tapon: 0, etiqueta: 0, contra: 0, embalaje: 0 },
+];
+
+export const BOX_PRODUCTS_DL = [
+  // Add box formats here when defined
+];
+
 export const BOX_PRODUCTS_VO = [
   { id: 'VO_CAJA_4x5L',     name: 'Caja 4×5L',      unitRef: 'VO_LATA_5L',  qty: 4,  embalaje: 1 },
   { id: 'VO_CAJA_15x750',   name: 'Caja 15×750ML',  unitRef: 'VO_LATA_750', qty: 15, embalaje: 1 },
@@ -55,6 +64,7 @@ export const DEFAULT_PARAMS = {
   poolred: 4.35,       // €/kg base oil price
   dif_pr_to: 0,        // Differential for TO
   dif_pr_vo: 1,        // Differential for VO (Premium)
+  dif_pr_dl: 1,        // Differential for Delirium (Premium)
   coste_km: 0.05,      // €/km transport
   mo_litro: 0.40,      // € labour per litre
   margen_tienda: 0.475, // 47.5%

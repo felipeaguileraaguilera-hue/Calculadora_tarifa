@@ -114,3 +114,37 @@ export async function syncToProducts(productPrices) {
   }
   return results
 }
+
+// ============================================================
+// PRODUCT IMAGES — Supabase Storage
+// ============================================================
+const BUCKET = 'product-images'
+
+export async function uploadProductImage(productId, file) {
+  const ext = file.name.split('.').pop()
+  const path = `${productId}.${ext}`
+
+  // Remove old image if exists
+  await supabase.storage.from(BUCKET).remove([path])
+
+  const { data, error } = await supabase.storage.from(BUCKET)
+    .upload(path, file, { upsert: true, contentType: file.type })
+
+  if (error) return { url: null, error: error.message }
+
+  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path)
+  return { url: urlData.publicUrl + '?t=' + Date.now(), error: null }
+}
+
+export async function getProductImages() {
+  const { data: files, error } = await supabase.storage.from(BUCKET).list('', { limit: 100 })
+  if (error || !files) return {}
+
+  const images = {}
+  for (const f of files) {
+    const prodId = f.name.replace(/\.[^.]+$/, '')
+    const { data } = supabase.storage.from(BUCKET).getPublicUrl(f.name)
+    images[prodId] = data.publicUrl
+  }
+  return images
+}
