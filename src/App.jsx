@@ -388,6 +388,7 @@ export default function App() {
   const [session, setSession] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [profile, setProfile] = useState(null);
+  const [authError, setAuthError] = useState('');
   const [tab, setTab] = useState("to");
   const [params, setParams] = useState(DEFAULT_PARAMS);
   const [unitProductsTO, setUnitProductsTO] = useState(UNIT_PRODUCTS_TO.map(p => ({ ...p })));
@@ -397,15 +398,33 @@ export default function App() {
 
   useEffect(() => {
     api.getSession().then(s => { setSession(s); setAuthLoading(false); });
-    const { data: { subscription } } = api.onAuthChange((_ev, s) => { setSession(s); if (!s) setProfile(null); });
+    const { data: { subscription } } = api.onAuthChange((_ev, s) => {
+      setSession(s);
+      if (!s) { setProfile(null); setAuthError(''); }
+    });
     return () => subscription.unsubscribe();
   }, []);
 
   useEffect(() => {
     if (!session?.user) return;
-    api.getClientProfile(session.user.id).then(({ data }) => {
-      if (data && data.role === 'admin') setProfile(data);
-      else { alert('Solo administradores pueden acceder'); api.signOut(); }
+    setAuthError('');
+    api.getClientProfile(session.user.id).then(({ data, error }) => {
+      console.log('Profile lookup:', { data, error, uid: session.user.id });
+      if (error) {
+        setAuthError('Error buscando perfil: ' + error.message + ' (auth_user_id: ' + session.user.id + ')');
+        return;
+      }
+      if (!data) {
+        setAuthError('No se encontró perfil para auth_user_id: ' + session.user.id);
+        return;
+      }
+      if (data.role !== 'admin') {
+        setAuthError('Solo administradores. Tu rol actual: ' + (data.role || 'client'));
+        return;
+      }
+      setProfile(data);
+    }).catch(err => {
+      setAuthError('Error de conexión: ' + err.message);
     });
   }, [session]);
 
@@ -455,6 +474,15 @@ export default function App() {
 
   if (authLoading) return <div className="app"><div className="loading"><div className="loading-spin" /><p>Cargando...</p></div></div>;
   if (!session) return <AuthScreen />;
+  if (authError) return (
+    <div className="app" style={{ padding: 20 }}>
+      <div style={{ background: '#FFF3E0', border: '1.5px solid #FFB74D', borderRadius: 10, padding: 16, marginTop: 20 }}>
+        <div style={{ fontWeight: 700, marginBottom: 6, color: '#E65100' }}>⚠️ Error de acceso</div>
+        <div style={{ fontSize: 12, color: '#555', lineHeight: 1.5 }}>{authError}</div>
+        <button onClick={() => api.signOut()} style={{ marginTop: 10, padding: '6px 14px', border: '1px solid #DDD', borderRadius: 6, background: '#fff', cursor: 'pointer', fontSize: 11 }}>Cerrar sesión</button>
+      </div>
+    </div>
+  );
   if (!profile) return <div className="app"><div className="loading"><div className="loading-spin" /><p>Verificando acceso...</p></div></div>;
 
   return (
