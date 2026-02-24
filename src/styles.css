@@ -111,6 +111,11 @@ thead .c-tienda,thead .c-distrib,thead .c-dl2,thead .c-horeca,thead .c-web{backg
 .pt-td{text-align:center;padding:4px 6px}
 .pt-price{font-weight:700;font-size:12px;color:var(--b9)}
 .pt-margin{font-size:8px;color:var(--t2)}
+.pt-price-input{width:48px;padding:2px 3px;border:1px solid #E0E0E0;border-radius:4px;font-size:12px;font-weight:700;text-align:center;font-family:inherit;color:var(--b9);background:transparent}
+.pt-price-input:focus{outline:none;border-color:var(--b4);background:#fff;box-shadow:0 0 0 2px rgba(90,114,85,.15)}
+.pt-td-edited{background:rgba(230,168,23,.12)!important}
+.pt-td-edited .pt-price-input{border-color:var(--am);color:#B8860B;font-weight:700}
+.pt-calc-hint{font-size:7px;color:var(--t2);text-decoration:line-through}
 
 /* Buttons */
 .chip-btn{background:var(--o0);border:1px solid var(--o2);color:var(--b6);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s}

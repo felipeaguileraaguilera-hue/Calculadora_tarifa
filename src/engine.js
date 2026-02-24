@@ -41,8 +41,14 @@ export const UNIT_PRODUCTS_VO = [
 ];
 
 // Delirium — Premium line (uses VO oil price)
+// Materials: caja_interior, caja_exterior, tapon, dosificador, botella, tarjeta_sabor, etiqueta
 export const UNIT_PRODUCTS_DL = [
-  { id: 'DL_BOT_500',     name: 'Delirium 500 ML', vol: 0.5, units: 1, envase: 0, tapon: 0, etiqueta: 0, contra: 0, embalaje: 0 },
+  { id: 'DL_BOT_500', name: 'Delirium 500 ML', vol: 0.5, units: 1,
+    envase: 0, tapon: 0, etiqueta: 0, contra: 0, embalaje: 0,
+    // Extended materials (Delirium-specific)
+    caja_interior: 0, caja_exterior: 0, dosificador: 0, botella: 0, tarjeta_sabor: 0,
+    allChannels: true, // Sells on ALL channels even as unit
+  },
 ];
 
 export const BOX_PRODUCTS_DL = [
@@ -99,40 +105,62 @@ export function calcUnit(product, params, litrePrice) {
   // Oil cost
   const aceite = litrePrice * vol;
   
-  // Material costs (editable per product)
+  // Material costs — standard + Delirium extended
   const envase = product.envase;
   const tapon = product.tapon;
   const etiqueta = product.etiqueta;
   const contra = product.contra;
   const embalaje = product.embalaje;
+  // Delirium extras (0 for non-Delirium products)
+  const caja_interior = product.caja_interior || 0;
+  const caja_exterior = product.caja_exterior || 0;
+  const dosificador = product.dosificador || 0;
+  const botella = product.botella || 0;
+  const tarjeta_sabor = product.tarjeta_sabor || 0;
   
-  // Labour: MO/L × volume
+  // Labour
   const mo = params.mo_litro * vol;
   
-  // Transport: coste_km × volume
+  // Transport
   const transporte = vol * params.coste_km;
   
-  // Coste sin aceite = SUM(envase:embalaje)
-  const coste_sa = envase + tapon + etiqueta + contra + embalaje;
+  // Coste sin aceite = all materials
+  const coste_sa = envase + tapon + etiqueta + contra + embalaje + caja_interior + caja_exterior + dosificador + botella + tarjeta_sabor;
   
-  // Individualidad = (envase + tapón + etiqueta + contra + embalaje + mo) × %individ
-  // Excel: P = SUM(I:N) * individ → (materials + MO) * individ
-  const individ = (envase + tapon + etiqueta + contra + embalaje + mo) * params.individ;
+  // Individualidad
+  const individ = (coste_sa + mo) * params.individ;
   
-  // Coste real = coste_sa + aceite
+  // Coste real
   const coste_real = coste_sa + aceite;
   
-  // Price formulas for UNIT (suelto) — only Tienda and Web
-  // Excel: S = aceite*IVA + aceite + (coste_sa + coste_sa*IVA_NA) + MO + (aceite*margen) + individ
-  const tienda = aceite * params.iva_aceite + aceite + (coste_sa + coste_sa * params.iva_na) + mo + (aceite * params.margen_tienda) + individ;
-  const web = aceite * params.iva_aceite + aceite + (coste_sa + coste_sa * params.iva_na) + mo + (aceite * params.margen_web) + individ;
+  // Base price component
+  const base = aceite * params.iva_aceite + aceite + (coste_sa + coste_sa * params.iva_na) + mo;
+  
+  // Delirium sells on ALL channels; regular units only Tienda + Web
+  if (product.allChannels) {
+    return {
+      id: product.id, name: product.name, vol, isBox: false, allChannels: true,
+      aceite, envase, tapon, etiqueta, contra, embalaje,
+      caja_interior, caja_exterior, dosificador, botella, tarjeta_sabor,
+      mo, transporte, individ, coste_sa, coste_real,
+      tienda: base + (aceite * params.margen_tienda) + individ,
+      distribucion: base + (aceite * params.margen_distrib),
+      dl2: base + (aceite * params.margen_dl2),
+      horeca: base + (aceite * params.margen_horeca) + transporte,
+      web: base + (aceite * params.margen_web) + individ,
+    };
+  }
+  
+  // Regular unit: only Tienda and Web
+  const tienda = base + (aceite * params.margen_tienda) + individ;
+  const web = base + (aceite * params.margen_web) + individ;
   
   return {
     id: product.id, name: product.name, vol, isBox: false,
     aceite, envase, tapon, etiqueta, contra, embalaje,
+    caja_interior, caja_exterior, dosificador, botella, tarjeta_sabor,
     mo, transporte, individ, coste_sa, coste_real,
     tienda, web,
-    // No distribucion/DL2/horeca for unit products
     distribucion: null, dl2: null, horeca: null,
   };
 }
