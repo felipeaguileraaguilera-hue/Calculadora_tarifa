@@ -395,6 +395,18 @@ export default function App() {
   const [showCostTO, setShowCostTO] = useState(false);
   const [showCostVO, setShowCostVO] = useState(false);
 
+  // SSO: detectar token del portal
+  const hash = window.location.hash
+  if (hash.includes('access_token=')) {
+    const params = new URLSearchParams(hash.substring(1))
+    const access_token = params.get('access_token')
+    const refresh_token = params.get('refresh_token')
+    if (access_token && refresh_token) {
+      supabase.auth.setSession({ access_token, refresh_token })
+      window.location.hash = '' // limpiar URL
+    }
+  }
+  
   useEffect(() => {
     api.getSession().then(s => { setSession(s); setAuthLoading(false); });
     const { data: { subscription } } = api.onAuthChange((_ev, s) => { setSession(s); if (!s) setProfile(null); });
