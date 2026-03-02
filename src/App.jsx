@@ -77,7 +77,8 @@ function EditablePrice({ calculated, override, onOverride, costeReal }) {
 // CALCULATOR TAB
 // ============================================================
 function CalculatorTab({ params, setParams, calcsTO, calcsVO, calcsDL, allCalcs, priceOverrides, setPriceOverrides, channelNames, setChannelNames, onSave }) {
-  const [showCosts, setShowCosts] = useState(false);
+  //const [showCosts, setShowCosts] = useState(false);
+  const [viewMode, setViewMode] = useState('pvp'); // Modos: 'pvp', 'no_vat', 'costs'
   const [saveName, setSaveName] = useState('');
   const [saveNotes, setSaveNotes] = useState('');
   const [saving, setSaving] = useState(false);
@@ -139,9 +140,25 @@ function CalculatorTab({ params, setParams, calcsTO, calcsVO, calcsDL, allCalcs,
                 </> :
                   channels.map(ch => {
                     const key = `${c.id}_${ch}`;
+                    const factorIVA = 1 + params.iva_aceite; // Usamos el IVA configurado (ej. 1.04)
+                  
+                    // Valor base (PVP calculado o manual)
+                    let valPVP = priceOverrides[key] ?? c[ch];
+                  
+                    // Si estamos en modo Sin IVA, dividimos el PVP por el factor de IVA
+                    let displayValue = viewMode === 'no_vat' ? (valPVP / factorIVA) : valPVP;
+                  
                     return c[ch] != null ? (
-                      <EditablePrice key={ch} calculated={c[ch]} override={priceOverrides[key] ?? null}
-                        onOverride={v => setOverride(c.id, ch, v)} costeReal={c.coste_real} />
+                      <EditablePrice 
+                        key={ch} 
+                        calculated={displayValue} 
+                        // Si editamos en 'Sin IVA', al guardar multiplicamos por el IVA para que el override sea siempre PVP
+                        onOverride={v => {
+                          const finalValue = viewMode === 'no_vat' ? (v * factorIVA) : v;
+                          setOverride(c.id, ch, finalValue);
+                        }} 
+                        costeReal={c.coste_real} 
+                      />
                     ) : <td key={ch} className="pt-td">—</td>;
                   })
                 }
@@ -203,9 +220,11 @@ function CalculatorTab({ params, setParams, calcsTO, calcsVO, calcsDL, allCalcs,
             ✏️ {Object.keys(priceOverrides).length} precio{Object.keys(priceOverrides).length > 1 ? 's' : ''} editado{Object.keys(priceOverrides).length > 1 ? 's' : ''} manualmente
           </span>
         )}
-        <button className="chip-btn" onClick={() => setShowCosts(!showCosts)}>
-          {showCosts ? '📊 Ver precios' : '🔍 Ver costes'}
-        </button>
+        <div style={{ display: 'flex', gap: 8, marginBottom: 10, justifyContent: 'flex-end' }}>
+          <button className={`chip-btn ${viewMode === 'pvp' ? 'active' : ''}`} onClick={() => setViewMode('pvp')}>💰 PVP</button>
+          <button className={`chip-btn ${viewMode === 'no_vat' ? 'active' : ''}`} onClick={() => setViewMode('no_vat')}>📑 Sin IVA</button>
+          <button className={`chip-btn ${viewMode === 'costs' ? 'active' : ''}`} onClick={() => setViewMode('costs')}>🔍 Costes</button>
+        </div>
       </div>
 
       {renderTable(calcsDL, 'Delirium', '✨')}
