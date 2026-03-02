@@ -104,7 +104,6 @@ export default function TariffViewer({ tariff, productImages = {}, onClose }) {
             <div className="tv-brand-sub">Desde 1993 · Villanueva de Tapia</div>
           </div>
           <div className="tv-tariff-info">
-            <div className="tv-tariff-code">{tariff.version_code}</div>
             <div className="tv-tariff-name">{tariff.name}</div>
             {tariff.published_at && (
               <div className="tv-tariff-date">
