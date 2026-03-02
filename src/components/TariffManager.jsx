@@ -118,14 +118,15 @@ export default function TariffManager({ currentCalcs, currentParams, materialCos
             <label className="fl">Tarifa A</label>
             <select className="fi" style={{ width: 200 }} onChange={e => e.target.value && loadForCompare(e.target.value, setT1)}>
               <option value="">Seleccionar...</option>
-              {tariffs.map(t => <option key={t.id} value={t.id}>{t.version_code} — {t.name}</option>)}
+              {tariffs.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
           </div>
           <div>
             <label className="fl">Tarifa B</label>
             <select className="fi" style={{ width: 200 }} onChange={e => e.target.value && loadForCompare(e.target.value, setT2)}>
               <option value="">Seleccionar...</option>
-              {tariffs.map(t => <option key={t.id} value={t.id}>{t.version_code} — {t.name}</option>)}
+              //{tariffs.map(t => <option key={t.id} value={t.id}>{t.version_code} — {t.name}</option>)}
+              {tariffs.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
             </select>
           </div>
         </div>
@@ -223,8 +224,7 @@ export default function TariffManager({ currentCalcs, currentParams, materialCos
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontWeight: 700, fontSize: 13 }}>{t.version_code}</span>
-                      <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 6, background: st.bg, color: st.color, fontWeight: 700 }}>
+                        <span style={{ fontSize: 9, padding: '2px 8px', borderRadius: 6, background: st.bg, color: st.color, fontWeight: 700 }}>
                         {st.icon} {st.label}
                       </span>
                     </div>
