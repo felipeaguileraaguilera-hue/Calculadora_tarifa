@@ -117,7 +117,7 @@ function CalculatorTab({ params, setParams, calcsTO, calcsVO, calcsDL, allCalcs,
           <thead><tr>
             <th className="pt-th-name">Producto</th>
             <th className="pt-th-vol">L</th>
-            {showCosts ? <>
+            {viewMode === 'costs' ? <>
               <th className="pt-th">Aceite</th><th className="pt-th">Material</th>
               <th className="pt-th">M.O.</th><th className="pt-th c-highlight">Coste</th>
             </> :
@@ -132,7 +132,7 @@ function CalculatorTab({ params, setParams, calcsTO, calcsVO, calcsDL, allCalcs,
                   {c.isBox && <div className="pt-prod-sub">{c.qty}× {c.unitName}</div>}
                 </td>
                 <td className="pt-td-vol">{c.vol}</td>
-                {showCosts ? <>
+                {viewMode === 'costs' ? <>
                   <td className="pt-td">{fmt(c.aceite)}</td>
                   <td className="pt-td">{fmt(c.coste_sa)}</td>
                   <td className="pt-td">{fmt(c.mo)}</td>
